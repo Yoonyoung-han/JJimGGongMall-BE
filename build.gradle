@@ -56,6 +56,6 @@ tasks.named('asciidoctor') {
 	dependsOn test
 }
 
-bootJar {
-	archiveFileName = '2024-jjimggongmall-server.jar' // JAR 파일 이름 설정
+jar {
+	enabled = false
 }
