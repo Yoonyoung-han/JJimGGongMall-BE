@@ -9,12 +9,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "users")
 @Slf4j
 public class User extends BaseEntity {
 
@@ -29,6 +31,16 @@ public class User extends BaseEntity {
     private String phoneNumber;
     private String birthday;
     private String gender;
+
+    @Override
+    public LocalDateTime getCreatedAt() {
+        return super.getCreatedAt();
+    }
+
+    @Override
+    public LocalDateTime getUpdatedAt() {
+        return super.getUpdatedAt();
+    }
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

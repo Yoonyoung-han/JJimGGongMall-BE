@@ -1,6 +1,8 @@
 package hanghae99.JJimGGongMall.controller;
 
 import hanghae99.JJimGGongMall.common.ApiResponse;
+import hanghae99.JJimGGongMall.common.security.UserDetailsImpl;
+import hanghae99.JJimGGongMall.common.security.annotation.AuthUserId;
 import hanghae99.JJimGGongMall.common.util.JwtUtil;
 import hanghae99.JJimGGongMall.domain.User;
 import hanghae99.JJimGGongMall.dto.request.MailDto;
@@ -15,7 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
@@ -29,6 +32,7 @@ public class AuthController {
 
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/verification-code/request")
     @ResponseStatus(HttpStatus.CREATED)
@@ -57,7 +61,7 @@ public class AuthController {
     public ApiResponse<String> signUp(@RequestBody RequestSignUpDto request) {
         try{
             User savedUser = authService.signUp(request);
-            return ApiResponse.ok(String.valueOf(ResponseSignUpDto.of(savedUser)));
+            return ApiResponse.ok("Sign up Success!!");
         } catch (Exception e){
             return ApiResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -65,25 +69,62 @@ public class AuthController {
 
     @PostMapping("/sign-in")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<Map<String, String>> signIn(@RequestBody RequestSignInDto request, HttpServletResponse response) {
+    public ApiResponse<Map<String, String>> signIn(@RequestBody RequestSignInDto request, HttpServletResponse response) {
         Map<String, String> tokens = authService.signIn(request);
 
-        // 액세스 토큰 쿠키 설정
-        Cookie accessTokenCookie = new Cookie("accessToken", Base64.getUrlEncoder().encodeToString(tokens.get("accessToken").getBytes()));
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(60 * 60); // 1시간 유효
-
         // 응답에 쿠키 추가
-        response.addCookie(accessTokenCookie);
+        response.addCookie(setAccessTokenCookie(tokens));
 
         // 응답 헤더에 액세스 토큰 추가
         HttpHeaders headers = new HttpHeaders();
         headers.add(JwtUtil.AUTHORIZATION_HEADER, tokens.get("accessToken"));
 
-        return ResponseEntity.ok().headers(headers).body(tokens);
+        return ApiResponse.of(HttpStatus.CREATED,headers,tokens);
+    }
+
+    @DeleteMapping("/sign-out")
+    public ApiResponse<String> signOut(@AuthUserId Long userId) {
+        authService.deleteToken(userId);
+        return ApiResponse.ok("Sign out everywhere!");
+    }
+
+    @PutMapping("/re-issue")
+    public ApiResponse<Map<String, String>> reIssueToken(@RequestBody Map<String, String> requestBody, HttpServletResponse response) {
+        String refreshToken = requestBody.get("refreshToken");
+        Map<String, String> tokens = authService.checkRefreshToken(refreshToken);
+
+        // 응답에 쿠키 추가
+        response.addCookie(setAccessTokenCookie(tokens));
+
+        // 응답 헤더에 액세스 토큰 추가
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(JwtUtil.AUTHORIZATION_HEADER, tokens.get("accessToken"));
+
+        return ApiResponse.of(HttpStatus.CREATED,headers,tokens);
     }
 
 
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PostMapping("/refresh-token")
+    public ApiResponse<String> refreshToken(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.getUserId();
+        String accountName = userDetails.getUsername();
+        String role = userDetails.getUser().getRole().name();
+
+        String newRefreshToken = jwtUtil.generateRefreshToken(accountName, role, userId);
+        return ApiResponse.ok(newRefreshToken);
+    }
+
+
+    public Cookie setAccessTokenCookie(Map<String, String> tokens){
+        // 액세스 토큰 쿠키 설정
+        Cookie accessTokenCookie = new Cookie("accessToken", Base64.getUrlEncoder().encodeToString(tokens.get("accessToken").getBytes()));
+
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(60 * 60); // 1시간 유효
+
+        return accessTokenCookie;
+    }
 }

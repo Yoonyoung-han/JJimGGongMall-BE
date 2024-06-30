@@ -1,10 +1,14 @@
 package hanghae99.JJimGGongMall.common.util;
 
+import hanghae99.JJimGGongMall.common.security.annotation.AuthUserId;
+import hanghae99.JJimGGongMall.common.security.entity.RefreshToken;
+import hanghae99.JJimGGongMall.common.security.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -22,13 +26,20 @@ public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     // Token 식별자
     public static final String BEARER_PREFIX = "Bearer ";
-    // 토큰 만료시간
-    private final long TOKEN_TIME = 60 * 60 * 1000L; // 60분
 
     @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
     private String secretKey;
+
+    @Value("${jwt.access-token-expiration}")
+    private long accessTokenExpiration;
+
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenExpiration;
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     @PostConstruct
     public void init() {
@@ -36,18 +47,31 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
+    // 액세스 토큰 생성
+    public String generateAccessToken(String accountName, String role) {
+        return createToken(accountName, role, accessTokenExpiration);
+    }
+
+    // 리프레시 토큰 생성
+    public String generateRefreshToken(String accountName, String role, Long userId) {
+        String refreshToken = createToken(accountName, role, refreshTokenExpiration);
+        RefreshToken token = new RefreshToken(userId, refreshToken);
+        refreshTokenRepository.save(token);
+        return refreshToken;
+    }
+
     // 토큰 생성
-    public String createToken(String username, String role) {
+    public String createToken(String accountName, String role, long expirationTime) {
         Date date = new Date();
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
-        claims.put("username", username);
+        claims.put("username", accountName);
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(username) // 사용자 식별자값(ID)
+                        .setSubject(accountName) // 사용자 식별자값(ID)
                         .setClaims(claims)
-                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
+                        .setExpiration(new Date(date.getTime() + expirationTime)) // 만료 시간
                         .setIssuedAt(date) // 발급일
                         .signWith(key, signatureAlgorithm) // 암호화 알고리즘
                         .compact();

@@ -1,5 +1,6 @@
 package hanghae99.JJimGGongMall.service;
 
+import hanghae99.JJimGGongMall.common.security.repository.RefreshTokenRepository;
 import hanghae99.JJimGGongMall.common.util.JwtUtil;
 import hanghae99.JJimGGongMall.common.util.RedisUtil;
 import hanghae99.JJimGGongMall.domain.User;
@@ -7,6 +8,7 @@ import hanghae99.JJimGGongMall.dto.request.MailDto;
 import hanghae99.JJimGGongMall.dto.request.RequestSignInDto;
 import hanghae99.JJimGGongMall.dto.request.RequestSignUpDto;
 import hanghae99.JJimGGongMall.repository.interfaces.UserRepository;
+import io.jsonwebtoken.Claims;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,9 @@ public class AuthService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     // 이메일 중복 확인 -> userService
     // 핸드폰 중복 확인 -> userService
@@ -115,11 +120,35 @@ public class AuthService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid username or password");
         }
+        String role = user.getRole().name();
 
-        String accessToken = jwtUtil.createToken(accountName, user.getRole().name());
+        String accessToken = jwtUtil.generateAccessToken(accountName,role);
+        String refreshToken = jwtUtil.generateRefreshToken(accountName,role, user.getId());
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
         return tokens;
+    }
+
+    public Map<String, String> checkRefreshToken(String refreshToken){
+        if (jwtUtil.validateToken(refreshToken)){
+            Claims userInfo = jwtUtil.getUserInfoFromToken(refreshToken);
+            String accountName = userInfo.get("username",String.class);
+            String newAccessToken = jwtUtil.generateAccessToken(accountName,userInfo.get("role",String.class));
+
+            Map<String, String> tokens = new HashMap<>();
+            tokens.put("accessToken", newAccessToken);
+            tokens.put("refreshToken", refreshToken);
+
+            return tokens;
+        } else {
+          throw new RuntimeException("Invalid refresh token");
+        }
+    }
+
+    public void deleteToken(Long userId) {
+        // 예시: Redis를 사용한 토큰 삭제 로직
+        refreshTokenRepository.deleteById(userId);
     }
 }

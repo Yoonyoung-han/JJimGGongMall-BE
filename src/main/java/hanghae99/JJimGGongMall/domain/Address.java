@@ -11,12 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "shipping_addresses")
 @Slf4j
 public class Address extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "address_id")
+    @Column(name = "shipping_address_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
