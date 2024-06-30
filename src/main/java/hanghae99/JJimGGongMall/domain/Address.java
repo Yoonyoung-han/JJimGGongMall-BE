@@ -23,6 +23,7 @@ public class Address extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String alias;
     private String recipientName;
     private String addressLine1;
     private String addressLine2;
@@ -33,8 +34,9 @@ public class Address extends BaseEntity {
     private Boolean isDefault;
 
     @Builder
-    public Address(Long id, String recipientName, String addressLine1, String addressLine2, String city, String state, String postalCode, String country, Boolean isDefault) {
-        this.id = id;
+    public Address(String alias,String recipientName, String addressLine1, String addressLine2, String city, String state, String postalCode,
+                   String country, Boolean isDefault, User user) {
+        this.alias = alias;
         this.recipientName = recipientName;
         this.addressLine1 = addressLine1;
         this.addressLine2 = addressLine2;
@@ -43,14 +45,12 @@ public class Address extends BaseEntity {
         this.postalCode = postalCode;
         this.country = country;
         this.isDefault = isDefault;
+        this.user = user;
     }
 
 
     // 연관관계 편의 메서드 -> Address 쪽에서 한번에 저장
     public void setUser(User user) {
-        if (this.user != null) {
-            this.user.getAddresses().remove(this);
-        }
         this.user = user;
     }
 }
