@@ -73,4 +73,8 @@ public class Order extends BaseEntity {
         String formattedDateTime = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
         this.orderNumber = userId+"_"+formattedDateTime;
     }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 }

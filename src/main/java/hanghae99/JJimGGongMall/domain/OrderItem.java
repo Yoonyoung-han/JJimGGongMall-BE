@@ -47,9 +47,12 @@ public class OrderItem extends BaseEntity {
     private BigDecimal price;
     private boolean refundCheck;
 
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
+
     @Builder
     public OrderItem(Order order, Product product, ProductOptionCombination optionCombination, DeliveryStatus deliveryStatus,
-                     Address shippingAddress, Long quantity, BigDecimal price, boolean refundCheck) {
+                     Address shippingAddress, Long quantity, BigDecimal price, boolean refundCheck, OrderStatus orderStatus) {
         this.order = order;
         this.product = product;
         this.optionCombination = optionCombination;
@@ -58,9 +61,18 @@ public class OrderItem extends BaseEntity {
         this.quantity = quantity;
         this.price = price;
         this.refundCheck = refundCheck;
+        this.orderStatus = orderStatus;
     }
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public void setRefundCheck(boolean refundCheck) {
+        this.refundCheck = refundCheck;
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }

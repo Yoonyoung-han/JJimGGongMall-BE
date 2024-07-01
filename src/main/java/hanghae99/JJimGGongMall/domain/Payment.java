@@ -62,8 +62,8 @@ public class Payment extends BaseEntity {
     }
 
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
 }

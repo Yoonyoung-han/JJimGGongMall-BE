@@ -39,4 +39,10 @@ public class OrderController {
         ResponseOrderDetailDto response = orderService.getOrderDetail(userId, orderId);
         return ApiResponse.ok(response);
     }
+
+    @PutMapping("/cancel-all/{orderId}")
+    public ApiResponse<String> cancelOrder(@PathVariable Long orderId){
+        String response = orderService.cancelOrder(orderId);
+        return ApiResponse.ok(response);
+    }
 }

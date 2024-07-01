@@ -61,4 +61,8 @@ public class Product extends BaseEntity {
         }
     }
 
+    public void increase(Long quantity) {
+        stock += quantity;
+    }
+
 }

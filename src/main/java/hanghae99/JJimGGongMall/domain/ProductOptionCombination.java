@@ -56,5 +56,9 @@ public class ProductOptionCombination {
         }
     }
 
+    public void increase(Long quantity) {
+        stock += quantity;
+    }
+
 
 }

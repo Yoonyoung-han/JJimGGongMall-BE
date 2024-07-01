@@ -1,5 +1,8 @@
 package hanghae99.JJimGGongMall.service;
 
+import hanghae99.JJimGGongMall.common.exception.CustomLogicException;
+import hanghae99.JJimGGongMall.common.exception.ErrorCode;
+import hanghae99.JJimGGongMall.common.util.DateTimeHolder;
 import hanghae99.JJimGGongMall.domain.*;
 import hanghae99.JJimGGongMall.domain.constant.DeliveryStatus;
 import hanghae99.JJimGGongMall.domain.constant.OrderStatus;
@@ -175,5 +178,53 @@ public class OrderService {
         result.addOrderItems(orderItemList);
 
         return result;
+    }
+
+    @Transactional
+    public String cancelOrder(Long orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Not Found : "+ orderId));
+
+        List<OrderItem> orderItemList = orderItemRepository.findByOrder(order);
+
+        for (OrderItem orderItem : orderItemList) {
+            // 배송 상태 확인
+            if (orderItem.getDeliveryStatus().equals(DeliveryStatus.DELIVERED) ||
+                    orderItem.getDeliveryStatus().equals(DeliveryStatus.IN_TRANSIT)) {
+                throw CustomLogicException.createBadRequestError(ErrorCode.NON_CANCELLABLE_PRODUCT);
+            }
+
+            // 상품 및 옵션 조회
+            Long productId = orderItem.getProduct().getId();
+            Long combinationId = orderItem.getOptionCombination().getId();
+            Long orderQuantity = orderItem.getQuantity();
+
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new EntityNotFoundException("Not Found : " + productId));
+            ProductOptionCombination combination = optionCombinationRepository.findById(combinationId)
+                    .orElseThrow(() -> new EntityNotFoundException("Not Found : " + combinationId));
+
+            // 재고 증가
+            product.increase(orderQuantity);
+            combination.increase(orderQuantity);
+
+            // 주문 항목 상태 업데이트
+            orderItem.setOrderStatus(OrderStatus.CANCELLED);
+            orderItem.setRefundCheck(true);
+        }
+
+        // 결제 조회 및 상태 업데이트
+        Payment payment = paymentRepository.findByOrder(order);
+        payment.setPaymentStatus(PaymentStatus.CANCELLED);
+
+        // 주문 상태 업데이트
+        order.setOrderStatus(OrderStatus.CANCELLED);
+
+        // 주문 및 결제 상태 저장
+        orderRepository.save(order);
+        paymentRepository.save(payment);
+
+        return "Order and payment cancelled successfully.";
     }
 }
