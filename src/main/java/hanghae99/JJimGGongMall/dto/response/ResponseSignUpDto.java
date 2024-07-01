@@ -8,7 +8,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class ResponseSignUpDto {
     private String accountName;
     private String email;

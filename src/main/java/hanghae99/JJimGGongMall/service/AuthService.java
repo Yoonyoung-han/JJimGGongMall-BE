@@ -4,7 +4,7 @@ import hanghae99.JJimGGongMall.common.security.repository.RefreshTokenRepository
 import hanghae99.JJimGGongMall.common.util.JwtUtil;
 import hanghae99.JJimGGongMall.common.util.RedisUtil;
 import hanghae99.JJimGGongMall.domain.User;
-import hanghae99.JJimGGongMall.dto.request.MailDto;
+import hanghae99.JJimGGongMall.dto.MailDto;
 import hanghae99.JJimGGongMall.dto.request.RequestSignInDto;
 import hanghae99.JJimGGongMall.dto.request.RequestSignUpDto;
 import hanghae99.JJimGGongMall.repository.interfaces.UserRepository;

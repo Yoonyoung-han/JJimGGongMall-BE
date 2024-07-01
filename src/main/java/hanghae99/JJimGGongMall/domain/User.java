@@ -3,10 +3,7 @@ package hanghae99.JJimGGongMall.domain;
 import hanghae99.JJimGGongMall.common.BaseEntity;
 import hanghae99.JJimGGongMall.dto.request.RequestSignUpDto;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -15,6 +12,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 @Slf4j
@@ -32,15 +30,6 @@ public class User extends BaseEntity {
     private String birthday;
     private String gender;
 
-    @Override
-    public LocalDateTime getCreatedAt() {
-        return super.getCreatedAt();
-    }
-
-    @Override
-    public LocalDateTime getUpdatedAt() {
-        return super.getUpdatedAt();
-    }
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

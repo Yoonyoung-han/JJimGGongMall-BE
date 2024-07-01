@@ -1,4 +1,4 @@
-package hanghae99.JJimGGongMall.dto.request;
+package hanghae99.JJimGGongMall.dto;
 
 import lombok.Getter;
 import lombok.Setter;
