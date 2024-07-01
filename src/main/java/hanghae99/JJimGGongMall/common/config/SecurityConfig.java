@@ -76,9 +76,10 @@ public class SecurityConfig {
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
                         .requestMatchers("/").permitAll() // 메인 페이지 요청 허가
-                        .requestMatchers("/api/auth/re-issue","/api/auth/sign-out").hasRole("USER")
+                        .requestMatchers("/api/auth/re-issue","/api/auth/sign-out",
+                                "/api/wishlist/**","/api/orders/**").hasRole("USER")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // '/api/v1/admin/'로 시작하는 요청은 ADMIN 권한 필요
-                        .anyRequest().permitAll() // '/api/auth/'로 시작하는 요청 모두 접근 허가
+                        .anyRequest().permitAll() // 그 외 요청 모두 접근 허가
         );
 
         // Exception Handling 설정 (access denied 처리)

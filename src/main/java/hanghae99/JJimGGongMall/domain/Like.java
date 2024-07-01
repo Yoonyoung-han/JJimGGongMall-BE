@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Like extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "likeId")
+    @Column(name = "like_id")
     private Long id;
 
     private Long connectId; // 리뷰 ID 또는 상품 ID

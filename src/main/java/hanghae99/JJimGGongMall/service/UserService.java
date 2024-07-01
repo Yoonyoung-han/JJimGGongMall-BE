@@ -1,6 +1,6 @@
 package hanghae99.JJimGGongMall.service;
 
-import hanghae99.JJimGGongMall.domain.Role;
+import hanghae99.JJimGGongMall.domain.constant.Role;
 import hanghae99.JJimGGongMall.domain.User;
 import hanghae99.JJimGGongMall.dto.request.RequestCheckDuplicateDto;
 import hanghae99.JJimGGongMall.dto.request.RequestUpdateUserInfoDto;
@@ -10,7 +10,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

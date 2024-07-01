@@ -16,19 +16,12 @@ public class ProductOption  extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_option_id")
+    @Column(name = "option_id")
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
 
     @Column(name = "option_name")
     private String productOptionName;
 
     @Column(name = "option_value")
     private String productOptionValue;
-
-    private Long stock;
-
 }

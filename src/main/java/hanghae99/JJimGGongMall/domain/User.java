@@ -1,12 +1,12 @@
 package hanghae99.JJimGGongMall.domain;
 
 import hanghae99.JJimGGongMall.common.BaseEntity;
+import hanghae99.JJimGGongMall.domain.constant.Role;
 import hanghae99.JJimGGongMall.dto.request.RequestSignUpDto;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +40,8 @@ public class User extends BaseEntity {
     private List<Address> addresses = new ArrayList<>();
 
     @Builder
-    public User(String accountName, String username,String email, String password, String phoneNumber, String birthday, String gender) {
+    public User(String accountName, String username,String email, String password, String phoneNumber,
+                String birthday, String gender) {
         this.accountName = accountName;
         this.email = email;
         this.username = username;

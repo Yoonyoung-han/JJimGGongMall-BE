@@ -19,12 +19,4 @@ public class ResponseSignUpDto {
         this.email = email;
         this.username = username;
     }
-
-    public static ResponseSignUpDto of(User result){
-        return ResponseSignUpDto.builder()
-                .accountName(result.getAccountName())
-                .email(result.getEmail())
-                .username(result.getUsername())
-                .build();
-    }
 }

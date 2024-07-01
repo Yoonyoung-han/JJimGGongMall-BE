@@ -7,6 +7,7 @@ import hanghae99.JJimGGongMall.domain.User;
 import hanghae99.JJimGGongMall.dto.MailDto;
 import hanghae99.JJimGGongMall.dto.request.RequestSignInDto;
 import hanghae99.JJimGGongMall.dto.request.RequestSignUpDto;
+import hanghae99.JJimGGongMall.repository.interfaces.AddressRepository;
 import hanghae99.JJimGGongMall.repository.interfaces.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.mail.MessagingException;
@@ -51,6 +52,9 @@ public class AuthService {
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     // 이메일 중복 확인 -> userService
     // 핸드폰 중복 확인 -> userService

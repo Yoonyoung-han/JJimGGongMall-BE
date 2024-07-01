@@ -54,4 +54,22 @@ public class Address extends BaseEntity {
     public void setUser(User user) {
         this.user = user;
     }
+
+
+    // 주소를 한 줄의 문자열로 반환하는 메서드
+    public String getSingleLineAddress() {
+        StringBuilder sb = new StringBuilder();
+
+        // 받는 사람, 우편번호, 서울시 구로구 구로동로 14 3-109
+        sb.append(recipientName).append(", ")
+                .append(postalCode).append(", ")
+                .append(city).append(" ")
+                .append(state).append(" ")
+                .append(addressLine1).append(" ");
+
+        if (addressLine2 != null) {
+            sb.append(addressLine2);
+        }
+        return sb.toString();
+    }
 }

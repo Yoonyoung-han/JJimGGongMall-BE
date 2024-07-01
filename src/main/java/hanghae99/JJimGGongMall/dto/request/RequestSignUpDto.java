@@ -1,13 +1,13 @@
 package hanghae99.JJimGGongMall.dto.request;
 
 import hanghae99.JJimGGongMall.domain.Address;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
-@Getter
-@Setter
+@Data
 public class RequestSignUpDto {
     private String email;
     private String accountName;
@@ -16,10 +16,9 @@ public class RequestSignUpDto {
     private String phoneNumber;
     private String birthday;
     private String gender;
-    private AddressInfo addressInfo;
+    private AddressInfo addressInfo = new AddressInfo(); // 주소 정보 초기화
 
-    @Getter
-    @Setter
+    @Data
     public static class AddressInfo {
         private String alias;
         private String recipientName;

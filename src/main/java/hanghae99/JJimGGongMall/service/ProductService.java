@@ -1,15 +1,10 @@
 package hanghae99.JJimGGongMall.service;
 
-import hanghae99.JJimGGongMall.domain.Product;
-import hanghae99.JJimGGongMall.domain.ProductImage;
-import hanghae99.JJimGGongMall.domain.ProductOption;
+import hanghae99.JJimGGongMall.domain.*;
 import hanghae99.JJimGGongMall.dto.OptionDto;
 import hanghae99.JJimGGongMall.dto.ProductDetailDto;
 import hanghae99.JJimGGongMall.dto.ProductDto;
-import hanghae99.JJimGGongMall.repository.interfaces.CategoryRepository;
-import hanghae99.JJimGGongMall.repository.interfaces.ProductImageRepository;
-import hanghae99.JJimGGongMall.repository.interfaces.ProductOptionRepository;
-import hanghae99.JJimGGongMall.repository.interfaces.ProductRepository;
+import hanghae99.JJimGGongMall.repository.interfaces.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,13 +28,19 @@ public class ProductService {
     private ProductImageRepository productImageRepository;
 
     @Autowired
-    private ProductOptionRepository productOptionRepository;
+    private OptionCombinationRepository optionCombinationRepository;
 
     @Autowired
     private CategoryService categoryService;
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private CombinationDetailRepository combinationDetailRepository;
+
+    @Autowired
+    private ProductOptionRepository productOptionRepository;
 
     public List<ProductDto> getAllProducts() {
         List<Product> products = productRepository.findAll();
@@ -70,12 +71,23 @@ public class ProductService {
         productDetail.setPreviewImages(previewImages);
 
         // options info
-        List<ProductOption> productOptions = productOptionRepository.findByProductId(productId);
-        List<OptionDto> optionInfoList = productOptions.stream()
-                                    .map(OptionDto::toDto)
-                                    .toList();
+        // productOptionCombination -> combinationDetail -> options
+        // 한 상품에 대한 모든 옵션 조합 가져오기
+        List<ProductOptionCombination> combinations = optionCombinationRepository.findByProductId(productId);
 
-        productDetail.setOptionInfo(optionInfoList);
+        List<OptionDto> optionDtoList = new ArrayList<>();
+
+        for (ProductOptionCombination combination : combinations) {
+            List<Long> optionIds = combinationDetailRepository.findByProductOptionCombination(combination).stream()
+                    .map(x -> x.getProductOption().getId())
+                    .collect(Collectors.toList());
+
+            List<ProductOption> productOptions = productOptionRepository.findByIdIn(optionIds);
+            OptionDto optionDto = OptionDto.toDto(combination, productOptions);
+            optionDtoList.add(optionDto);
+        }
+
+        productDetail.setOptionInfo(optionDtoList);
 
         // category info
         String categoryInfo = categoryService.getCategoryHierarchyByProductId(product);

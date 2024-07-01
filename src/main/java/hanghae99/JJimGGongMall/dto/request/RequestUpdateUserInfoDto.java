@@ -1,6 +1,5 @@
 package hanghae99.JJimGGongMall.dto.request;
 
-import hanghae99.JJimGGongMall.domain.Role;
 import lombok.Data;
 
 @Data

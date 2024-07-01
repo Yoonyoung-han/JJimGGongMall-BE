@@ -1,6 +1,5 @@
 package hanghae99.JJimGGongMall.domain;
 
-import hanghae99.JJimGGongMall.common.BaseEntity;
 import hanghae99.JJimGGongMall.common.exception.CustomLogicException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,44 +9,40 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static hanghae99.JJimGGongMall.common.exception.ErrorCode.OUT_OF_STOCK;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "products")
+@Table(name = "product_option_combination")
 @Slf4j
-public class Product extends BaseEntity {
+public class ProductOptionCombination {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_id")
+    @Column(name = "combination_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
-    @Column(name = "prod_name")
-    private String productName;
+    @OneToMany(mappedBy = "productOptionCombination")
+    List<CombinationDetail> combinationDetails;
 
-    @Column(name = "prod_desc")
-    private String productDescription;
-    private Long stock;
-
-    @Column(name = "price", nullable = false)
+    private String combinationValue;
+    private int stock;
     private BigDecimal price;
-    private String thumbnailUrl;
 
     @Builder
-    public Product(Category category, String productName, String productDescription, Long stock, BigDecimal price, String thumbnailUrl) {
-        this.category = category;
-        this.productName = productName;
-        this.productDescription = productDescription;
+    private ProductOptionCombination(String combinationValue, int stock, BigDecimal price) {
+        this.combinationValue = combinationValue;
         this.stock = stock;
         this.price = price;
-        this.thumbnailUrl = thumbnailUrl;
+        this.combinationDetails = new ArrayList<>();
     }
 
     public void decrease(Long quantity) {
@@ -60,5 +55,6 @@ public class Product extends BaseEntity {
             throw CustomLogicException.createBadRequestError(OUT_OF_STOCK);
         }
     }
+
 
 }
